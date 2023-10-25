@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_extension_developers",
+  "info": {
+    "displayName": "developer",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "github": {
+      "type": "string"
+    }
+  }
+}
