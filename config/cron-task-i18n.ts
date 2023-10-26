@@ -235,7 +235,7 @@ module.exports = {
           console.error("Error:", error);
         }
       };
-      fetchAllData();
+      // fetchAllData();
     },
     options: {
       // Every minute

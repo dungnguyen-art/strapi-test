@@ -1,7 +1,16 @@
+"use strict";
+
+import { createCoreService } from "@strapi/strapi/dist/factories";
+
 /**
- * tutorial service
+ * tutorial service.
  */
-
-import { factories } from '@strapi/strapi';
-
-export default factories.createCoreService('api::tutorial.tutorial');
+// const { createCoreService } = require("@strapi/strapi").factories;
+module.exports = createCoreService("api::tutorial.tutorial", () => ({
+  generateSummary(data) {
+    if (data.contents) {
+      return data.contents.substring(0, 200);
+    }
+    return null;
+  },
+}));
