@@ -1,0 +1,20 @@
+{
+  "kind": "singleType",
+  "collectionName": "langs",
+  "info": {
+    "singularName": "lang",
+    "pluralName": "langs",
+    "displayName": "lang"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "lang": {
+      "type": "component",
+      "repeatable": true,
+      "component": "platform.platform"
+    }
+  }
+}

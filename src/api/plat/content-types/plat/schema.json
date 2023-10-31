@@ -1,0 +1,24 @@
+{
+  "kind": "singleType",
+  "collectionName": "plats",
+  "info": {
+    "singularName": "plat",
+    "pluralName": "plats",
+    "displayName": "plat"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "web": {
+      "type": "string"
+    },
+    "mobi": {
+      "type": "string"
+    },
+    "extention": {
+      "type": "string"
+    }
+  }
+}

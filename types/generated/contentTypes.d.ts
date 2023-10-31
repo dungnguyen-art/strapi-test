@@ -747,6 +747,42 @@ export interface ApiI18NI18N extends Schema.CollectionType {
   };
 }
 
+export interface ApiI18NV2I18NV2 extends Schema.CollectionType {
+  collectionName: 'i18n_v2s';
+  info: {
+    singularName: 'i18n-v2';
+    pluralName: 'i18n-v2s';
+    displayName: 'i18n_v2';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    key: Attribute.String & Attribute.Required & Attribute.Unique;
+    en: Attribute.Component<'platform.platform'>;
+    vi: Attribute.Component<'platform.platform'>;
+    zh: Attribute.Component<'platform.platform'>;
+    ja: Attribute.Component<'platform.platform'>;
+    ru: Attribute.Component<'platform.platform'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::i18n-v2.i18n-v2',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::i18n-v2.i18n-v2',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiInfoInfo extends Schema.SingleType {
   collectionName: 'infos';
   info: {
@@ -769,6 +805,52 @@ export interface ApiInfoInfo extends Schema.SingleType {
     createdBy: Attribute.Relation<'api::info.info', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::info.info', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiLangLang extends Schema.SingleType {
+  collectionName: 'langs';
+  info: {
+    singularName: 'lang';
+    pluralName: 'langs';
+    displayName: 'lang';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    lang: Attribute.Component<'platform.platform', true>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::lang.lang', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::lang.lang', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiPlatPlat extends Schema.SingleType {
+  collectionName: 'plats';
+  info: {
+    singularName: 'plat';
+    pluralName: 'plats';
+    displayName: 'plat';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    web: Attribute.String;
+    mobi: Attribute.String;
+    extention: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::plat.plat', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::plat.plat', 'oneToOne', 'admin::user'> &
       Attribute.Private;
   };
 }
@@ -841,7 +923,10 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::classroom.classroom': ApiClassroomClassroom;
       'api::i18n.i18n': ApiI18NI18N;
+      'api::i18n-v2.i18n-v2': ApiI18NV2I18NV2;
       'api::info.info': ApiInfoInfo;
+      'api::lang.lang': ApiLangLang;
+      'api::plat.plat': ApiPlatPlat;
       'api::tutorial.tutorial': ApiTutorialTutorial;
     }
   }

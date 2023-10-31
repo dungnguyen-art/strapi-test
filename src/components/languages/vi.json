@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_platform_vis",
+  "info": {
+    "displayName": "vi",
+    "icon": "apps",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "vi": {
+      "type": "component",
+      "repeatable": false,
+      "component": "platform.platform"
+    }
+  }
+}

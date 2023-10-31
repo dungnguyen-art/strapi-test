@@ -4,8 +4,9 @@ import { useSelector } from "react-redux";
 import { useFetchClient, useNotification } from "@strapi/helper-plugin";
 import {
   fetchAllData,
-  fetchDataFromStrapi,
   createDataToStrapi,
+  getDataFromStrapi,
+  deleteAllStrapi,
 } from "./fetchDataGithub";
 const Index = ({}) => {
   const toggleNotification = useNotification();
@@ -82,24 +83,50 @@ const Index = ({}) => {
       setLoading(false);
     }
   };
-  
+
   const handleFetchData = async () => {
-    const MergeDataCrawl = await fetchAllData();
-    const responseKeyStrapi = await fetchDataFromStrapi();
-
-
-    for (const index in MergeDataCrawl) {
-      console.log(MergeDataCrawl[index].key);
-
-      if (!responseKeyStrapi?.includes(MergeDataCrawl[index].key)) {
-        const record = MergeDataCrawl[index];
-        const refactorData = {
-          data: {},
-        };
-        refactorData.data = record;
-        createDataToStrapi(refactorData);
+    try {
+      setLoading(true);
+      const MergeDataCrawl = await fetchAllData();
+      const dataStrapi = await getDataFromStrapi();
+      for (const index in MergeDataCrawl) {
+        const temp =  MergeDataCrawl[index];
+        const containsTarget = dataStrapi.some((obj) => {
+          return Object.keys(temp).every((key) => {
+            return JSON.stringify(obj[key]) === JSON.stringify(temp[key]);
+          });
+        });
+        if (!containsTarget) {
+          const record = MergeDataCrawl[index];
+          const refactorData = {
+            data: {},
+          };
+          refactorData.data = record;
+          createDataToStrapi(refactorData);
+        }
       }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
     }
+  };
+
+  const exportData = async () => {
+    const getMergedData = await fetchAllData();
+    const jsonData = JSON.stringify(getMergedData, null, 4);
+    const blob = new Blob([jsonData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data.json";
+    a.click();
+
+    // Revoke the URL to release resources
+    URL.revokeObjectURL(url);
+  };
+  const deleteAll = async () => {
+    deleteAllStrapi();
   };
 
   return (
@@ -109,8 +136,13 @@ const Index = ({}) => {
           Trigger Github Action
         </Button>
       )}
-      {<Button onClick={handleFetchData}>Refresh Data</Button>}
-      {<Button>Export Data</Button>}
+      {
+        <Button loading={loading} onClick={handleFetchData}>
+          Refresh Data
+        </Button>
+      }
+      {<Button onClick={exportData}>Export Data</Button>}
+      <Button onClick={deleteAll}>Delete All</Button>
     </>
   );
 };

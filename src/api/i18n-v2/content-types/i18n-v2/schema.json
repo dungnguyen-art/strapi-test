@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "i18n_v2s",
+  "info": {
+    "singularName": "i18n-v2",
+    "pluralName": "i18n-v2s",
+    "displayName": "i18n_v2",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "en": {
+      "type": "component",
+      "repeatable": false,
+      "component": "platform.platform"
+    },
+    "vi": {
+      "type": "component",
+      "repeatable": false,
+      "component": "platform.platform"
+    },
+    "zh": {
+      "type": "component",
+      "repeatable": false,
+      "component": "platform.platform"
+    },
+    "ja": {
+      "type": "component",
+      "repeatable": false,
+      "component": "platform.platform"
+    },
+    "ru": {
+      "type": "component",
+      "repeatable": false,
+      "component": "platform.platform"
+    }
+  }
+}

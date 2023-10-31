@@ -3,7 +3,15 @@ interface LanguageData {
   vi: string;
   zh: string;
   ja: string;
-  es: string;
+  ru: string;
+}
+interface LanguageObject {
+  web: string;
+  mobi: string;
+  extension: string;
+}
+interface TransformedObject {
+  [key: string]: LanguageObject | string;
 }
 
 interface DataItem {
@@ -18,25 +26,124 @@ interface MergeData {
   vi: { [platform: string]: string };
   zh: { [platform: string]: string };
   ja: { [platform: string]: string };
-  es: { [platform: string]: string };
+  ru: { [platform: string]: string };
 }
 
-export const fetchDataFromStrapi = async () => {
-  try {
-    const response = await fetch("http://localhost:1336/api/i18ns");
-    const dataStrapi = await response.json();
-    // console.log("dataStrapi in fetch", dataStrapi);
-    const keyStrapi: string[] = [];
+const langueges = ["en", "vi", "zh", "ja", "ru"];
+function transformObject(input: any): TransformedObject {
+  const transformed: TransformedObject = {};
 
-    dataStrapi.data.map((item) => {
-      const key = item.attributes.key;
-      keyStrapi.push(key);
-    });
-    // console.log("keyStrapi", keyStrapi);
-    return keyStrapi;
-  } catch (err) {
-    console.error("Error fetching data from Strapi:", err);
+  for (const key in input.attributes) {
+    if (langueges.includes(key)) {
+      transformed[key] = {
+        web: input.attributes[key].web,
+        mobi: input.attributes[key].mobi,
+        extension: input.attributes[key].extension,
+      };
+    }
   }
+
+  transformed["key"] = input.attributes.key;
+
+  return transformed;
+}
+
+
+// export const getKeyStrapi = async () => {
+//   try {
+//     const response = await fetch(
+//       "http://localhost:1336/api/i18n-v2s?populate=*"
+//     );
+//     const dataStrapi = await response.json();
+//     const keyStrapi: string[] = [];
+
+//     dataStrapi.data.map((item) => {
+//       const key = item.attributes.key;
+//       keyStrapi.push(key);
+//     });
+//     return keyStrapi;
+//   } catch (err) {
+//     console.error("Error fetching data from Strapi:", err);
+//   }
+// };
+export const getDataFromStrapi = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:1336/api/i18n-v2s?populate=*"
+    );
+    const dataStrapi = await response.json();
+
+    const transformedObjects = dataStrapi.data.map(transformObject);
+
+    return transformedObjects;
+  } catch (error) {
+    console.error("Error fetching data from Strapi:", error);
+  }
+};
+
+export const getDataToDele = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:1336/api/i18n-v2s?populate=*"
+    );
+    const dataStrapi = await response.json();
+
+
+    return dataStrapi.data;
+  } catch (error) {
+    console.error("Error fetching data from Strapi:", error);
+  }
+};
+
+
+export const createDataToStrapi = async (record) => {
+  try {
+    const response = await fetch(`http://localhost:1336/api/i18n-v2s`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(record),
+    });
+
+    if (response.ok) {
+      const createdData = await response.json();
+    } else {
+      console.error(`Failed to create data in Strapi`);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
+export const deleteAllStrapi = async () => {
+  try {
+    const dataStrapi = await getDataToDele();
+    for (const index in dataStrapi) {
+      const id = dataStrapi[index].id;
+      try {
+        const response = await fetch(
+          `http://localhost:1336/api/i18n-v2s/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json", // Set the content type to JSON
+            },
+          }
+        );
+        if (response.ok) {
+        } else {
+          console.error(
+            `Failed to delete data with ID ${id} in Strapi. Status: ${response.status}`
+          );
+          const errorResponse = await response.text();
+          console.error(`Error response: ${errorResponse}`);
+        }
+      } catch (error) {
+        console.error(`Error deleting data with ID ${id}: ${error}`);
+      }
+    }
+  } catch (error) {}
 };
 
 const fetchDataGithub = async (url: string) => {
@@ -58,7 +165,7 @@ export const fetchAllData = async () => {
   // Get all URL gihub the data extensions
   const url_extension_en =
     "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/extension/Json/en.json";
-  const url_extension_es =
+  const url_extension_ru =
     "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/extension/Json/es.json";
   const url_extension_vi =
     "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/extension/Json/vi.json";
@@ -69,7 +176,7 @@ export const fetchAllData = async () => {
   // Get all URL the data web
   const url_web_en =
     "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/web/Json/en.json";
-  const url_web_es =
+  const url_web_ru =
     "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/web/Json/es.json";
   const url_web_vi =
     "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/web/Json/vi.json";
@@ -79,30 +186,28 @@ export const fetchAllData = async () => {
     "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/web/Json/ja.json";
   // Get all URL the data mobi
   const url_mobi_en =
-    "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/mobile/Json/en.json";
-  const url_mobi_es =
-    "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/mobile/Json/es.json";
+    "https://raw.githubusercontent.com/Koniverse/SubWallet-Mobile/e593387c588be6e731bf8af4a44895a7ccfc70ca/src/utils/i18n/en_US.json";
+  const url_mobi_ru =
+    "https://raw.githubusercontent.com/Koniverse/SubWallet-Mobile/e593387c588be6e731bf8af4a44895a7ccfc70ca/src/utils/i18n/ru_RU.json";
   const url_mobi_vi =
-    "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/mobile/Json/vi.json";
+    "https://raw.githubusercontent.com/Koniverse/SubWallet-Mobile/e593387c588be6e731bf8af4a44895a7ccfc70ca/src/utils/i18n/vi_VN.json";
   const url_mobi_zh =
-    "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/mobile/Json/zh.json";
+    "https://raw.githubusercontent.com/Koniverse/SubWallet-Mobile/e593387c588be6e731bf8af4a44895a7ccfc70ca/src/utils/i18n/zh_CN.json";
   const url_mobi_ja =
-    "https://raw.githubusercontent.com/dungnguyen-art/i18n/main/src/crawl/mobile/Json/ja.json";
+    "https://raw.githubusercontent.com/Koniverse/SubWallet-Mobile/e593387c588be6e731bf8af4a44895a7ccfc70ca/src/utils/i18n/ja_JP.json";
 
   try {
     // Get all data extension
     const data_extension_en: any = await fetchDataGithub(url_extension_en);
-    const data_extension_es: any = await fetchDataGithub(url_extension_es);
+    const data_extension_ru: any = await fetchDataGithub(url_extension_ru);
     const data_extension_vi: any = await fetchDataGithub(url_extension_vi);
     const data_extension_zh: any = await fetchDataGithub(url_extension_zh);
     const data_extension_ja: any = await fetchDataGithub(url_extension_ja);
-    // console.log("data_extension_en", data_extension_en);
 
     const combinedExtension: DataItem[] = [];
     // Iterate through keys in en.json
     for (const sectionKey in data_extension_en) {
       const item: DataItem = {};
-
       for (const commonKey in data_extension_en[sectionKey]) {
         item[sectionKey] = item[sectionKey] || {}; // Initialize the sectionKey if it doesn't exist
         item[sectionKey][commonKey] = {
@@ -110,17 +215,15 @@ export const fetchAllData = async () => {
           vi: data_extension_vi[sectionKey][commonKey],
           zh: data_extension_zh[sectionKey][commonKey],
           ja: data_extension_ja[sectionKey][commonKey],
-          es: data_extension_es[sectionKey][commonKey],
+          ru: data_extension_ru[sectionKey][commonKey],
         };
       }
       combinedExtension.push(item); // Push the item into the array
     }
 
-    // console.log("combinedExtension", combinedExtension);
-
     // Get all data web
     const data_web_en: any = await fetchDataGithub(url_web_en);
-    const data_web_es: any = await fetchDataGithub(url_web_es);
+    const data_web_ru: any = await fetchDataGithub(url_web_ru);
     const data_web_vi: any = await fetchDataGithub(url_web_vi);
     const data_web_zh: any = await fetchDataGithub(url_web_zh);
     const data_web_ja: any = await fetchDataGithub(url_web_ja);
@@ -137,16 +240,15 @@ export const fetchAllData = async () => {
           vi: data_web_vi[sectionKey][commonKey],
           zh: data_web_zh[sectionKey][commonKey],
           ja: data_web_ja[sectionKey][commonKey],
-          es: data_web_es[sectionKey][commonKey],
+          ru: data_web_ru[sectionKey][commonKey],
         };
       }
       combinedWeb.push(item);
     }
 
-    // console.log("combinedWeb", combinedWeb);
     // Get all data mobi
     const data_mobi_en: any = await fetchDataGithub(url_mobi_en);
-    const data_mobi_es: any = await fetchDataGithub(url_mobi_es);
+    const data_mobi_ru: any = await fetchDataGithub(url_mobi_ru);
     const data_mobi_vi: any = await fetchDataGithub(url_mobi_vi);
     const data_mobi_zh: any = await fetchDataGithub(url_mobi_zh);
     const data_mobi_ja: any = await fetchDataGithub(url_mobi_ja);
@@ -164,32 +266,25 @@ export const fetchAllData = async () => {
           vi: data_mobi_vi[sectionKey][commonKey],
           zh: data_mobi_zh[sectionKey][commonKey],
           ja: data_mobi_ja[sectionKey][commonKey],
-          es: data_mobi_es[sectionKey][commonKey],
+          ru: data_mobi_ru[sectionKey][commonKey],
         };
       }
       combinedMobi.push(item);
     }
-    // console.log("combinedMobi", combinedMobi);
     const MergeDataCrawl: MergeData[] = [];
-    // const getAllKey:string[] = []
     for (const index in combinedWeb) {
-      // console.log('index', index);
-
       for (const key1 in combinedWeb[index]) {
-        // console.log("key1", key1);
-
         for (const key2 in combinedWeb[index][key1]) {
-          // console.log("key2", key2);
           const mergedItem = {
             en: {
               web: combinedWeb[index][key1][key2].en,
               mobi: combinedMobi[index][key1][key2].en,
               extension: combinedExtension[index][key1][key2].en,
             },
-            es: {
-              web: combinedWeb[index][key1][key2].es,
-              mobi: combinedMobi[index][key1][key2].es,
-              extension: combinedExtension[index][key1][key2].es,
+            ru: {
+              web: combinedWeb[index][key1][key2].ru,
+              mobi: combinedMobi[index][key1][key2].ru,
+              extension: combinedExtension[index][key1][key2].ru,
             },
             ja: {
               web: combinedWeb[index][key1][key2].ja,
@@ -209,34 +304,10 @@ export const fetchAllData = async () => {
             key: `${key1}.${key2}`,
           };
           MergeDataCrawl.push(mergedItem);
-          // getAllKey.push(mergedItem.key);
         }
       }
     }
-    // console.log("MergeDataCrawl in fet", MergeDataCrawl);
-    // console.log("getAllKey", getAllKey);
     return MergeDataCrawl;
-  } catch (error) {
-    // Handle errors here if needed
-    console.error("Error:", error);
-  }
-};
-
-export const createDataToStrapi = async (record) => {
-  try {
-    const response = await fetch(`http://localhost:1336/api/i18ns`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(record),
-    });
-
-    if (response.ok) {
-      const createdData = await response.json();
-    } else {
-      console.error(`Failed to create data in Strapi`);
-    }
   } catch (error) {
     console.error("Error:", error);
   }

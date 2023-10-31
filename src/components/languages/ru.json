@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_languages_rus",
+  "info": {
+    "displayName": "ru",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "ru": {
+      "type": "component",
+      "repeatable": false,
+      "component": "platform.platform"
+    }
+  }
+}
